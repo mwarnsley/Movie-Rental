@@ -1,5 +1,6 @@
 from movie import Movie
 
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -13,15 +14,30 @@ class User:
         self.movies.append(movie)
 
     def delete_movie(self, name):
-        # Gather the list of movies that are NOT equal to the one you want to delete
-        return list(filter(lambda movie: movie.name != name, self.movies))
+        self.movies = list(filter(lambda movie: movie.name != name, self.movies))
 
     def watched_movies(self):
-        # Gather list of movies that have been watched
         return list(filter(lambda movie: movie.watched, self.movies))
 
-    def save_to_file(self):
-        with open("{}.txt".format(self.name), 'w') as f:
-            f.write(self.name + "\n")
-            for movie in self.movies:
-                f.write("{},{},{}\n".format(movie.name, movie.genre, str(movie.watched)))
+    def set_watched(self, name):
+        for movie in self.movies:
+            if movie.name == name:
+                movie.watched = True
+
+    def json(self):
+        return {
+            'name': self.name,
+            'movies': [
+                movie.json() for movie in self.movies
+            ]
+        }
+
+    @classmethod
+    def from_json(cls, json_data):
+        user = User(json_data['name'])
+        movies = []
+        for movie_data in json_data['movies']:
+            movies.append(Movie.from_json(movie_data))
+        user.movies = movies
+
+        return user
